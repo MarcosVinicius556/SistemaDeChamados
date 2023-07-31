@@ -1,6 +1,6 @@
 import { useState, createContext, useEffect } from "react";
 import { auth, db } from '../services/firebaseConnection';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
@@ -16,7 +16,25 @@ export const AuthContext = createContext({});
 function AuthProvider({ children }) {
 
     const[user, setUser] = useState(null);
-    const[loadingAuth, setLoadingAuth] = useState(false)
+    const[loadingAuth, setLoadingAuth] = useState(false);
+    const[loading, setLoading] = useState(SVGComponentTransferFunctionElement);
+
+    useEffect(() => {
+        async function loadUser(){
+            /**Busca o usuário que estava logado no sistema(Permanencia de login) */
+            const storageUser = localStorage.getItem("@ticketsPRO");
+
+            /**Se encontrar um usuário logado, passa para a aplicação */
+            if(storageUser) {
+                setUser(JSON.parse(storageUser));
+                setLoading(false);
+            }
+
+            setLoading(false);
+        }   
+
+        loadUser();
+    }, []);
 
     const navigate = useNavigate();
 
@@ -94,13 +112,22 @@ function AuthProvider({ children }) {
         localStorage.setItem('@ticketsPRO', JSON.stringify(data));
     }
 
+    async function logout() {
+        await signOut(auth);
+        localStorage.removeItem("@ticketsPRO");
+        setUser(null);
+    }
+
+
     return(
         <AuthContext.Provider value={{
             signed: !!user, //!!Converte a variável para boolean,
             user,
             signIn,
             signUp,
-            loadingAuth
+            signOut,
+            loadingAuth,
+            loading
         }}>
             {children}
         </AuthContext.Provider>
