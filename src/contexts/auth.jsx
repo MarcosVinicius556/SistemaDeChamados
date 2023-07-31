@@ -1,6 +1,6 @@
 import { useState, createContext, useEffect } from "react";
 import { auth, db } from '../services/firebaseConnection';
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
@@ -20,8 +20,33 @@ function AuthProvider({ children }) {
 
     const navigate = useNavigate();
 
-    function signIn(email, password) {
-        console.log(email + " " + password );
+    async function signIn(email, password) {
+        setLoadingAuth(true);
+        await signInWithEmailAndPassword(auth, email, password)
+        .then(async (value) => {
+            let uid = value.user.uid; //Pegando UID retornado pelo banco ao fazer login
+
+            const docRef = doc(db, 'users', uid); //Montando a referência do usuário
+            const docSnap = await getDoc(docRef); //Fazendo a busca do usuário
+
+            let data = { //Montado objeto do usuário para a aplicação
+                uid: uid,
+                nome: docSnap.data.nome,
+                email: value.user.email,
+                avatarUrl: docSnap.avatarUrl,
+            };
+
+            setUser(data); //Passa o usuário para a aplicação
+            storageUser(data); //Guarda os dados do usuário que logou
+            setLoadingAuth(false);
+            toast.success('Bem-vindo de volta!');
+            navigate('/dashboard'); //Direciona para a dashboard do sistema
+            })
+        .catch((error) => {
+            console.log(error);
+            setLoadingAuth(false)
+            toast.error('Ocorreu um erro ao fazer login');
+        });
     }
 
     /**
