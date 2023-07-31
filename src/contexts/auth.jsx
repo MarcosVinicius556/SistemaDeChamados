@@ -2,6 +2,8 @@ import { useState, createContext, useEffect } from "react";
 import { auth, db } from '../services/firebaseConnection';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify";
 
 /**
  * Criando contexto para autenticação da aplicação
@@ -15,6 +17,8 @@ function AuthProvider({ children }) {
 
     const[user, setUser] = useState(null);
     const[loadingAuth, setLoadingAuth] = useState(false)
+
+    const navigate = useNavigate();
 
     function signIn(email, password) {
         console.log(email + " " + password );
@@ -45,12 +49,24 @@ function AuthProvider({ children }) {
                             avatarUrl: null
                         };
                         setUser(data); //Passando usuário para o contexto da aplicação
+                        storageUser(data);
                         setLoadingAuth(false);
+                        toast.success('Seja bem-vindo ao sistema!');
+                        navigate('/dashboard'); //Após a conta estar criada, direciona o usuário para a página de dashboard
+
                     })
                 }).catch((error) => {
                 console.log(error);
                 setLoadingAuth(false);
               });
+    }
+
+    /**
+     * @apiNote Salva os dados do usuário logado no localStorage
+     * @param {User} data 
+     */
+    function storageUser(data) {
+        localStorage.setItem('@ticketsPRO', JSON.stringify(data));
     }
 
     return(
