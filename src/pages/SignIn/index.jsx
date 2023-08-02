@@ -40,7 +40,7 @@ function SignIn() {
                     />
 
                     <button type="submit">{
-                        loadingAuth ? 'Carregando...' : 'Cadastrar'
+                        loadingAuth ? 'Carregando...' : 'Entrar'
                     }</button>
                 </form>
                 <Link to='/register'>Criar uma conta</Link>

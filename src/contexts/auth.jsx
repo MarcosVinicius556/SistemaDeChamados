@@ -46,12 +46,12 @@ function AuthProvider({ children }) {
 
             const docRef = doc(db, 'users', uid); //Montando a referência do usuário
             const docSnap = await getDoc(docRef); //Fazendo a busca do usuário
-
+            console.log(docSnap.data);
             let data = { //Montado objeto do usuário para a aplicação
                 uid: uid,
-                nome: docSnap.data.nome,
+                nome: docSnap.data().nome,
                 email: value.user.email,
-                avatarUrl: docSnap.avatarUrl,
+                avatarUrl: docSnap.data().avatarUrl,
             };
 
             setUser(data); //Passa o usuário para a aplicação

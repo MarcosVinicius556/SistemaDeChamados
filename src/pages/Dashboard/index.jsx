@@ -1,3 +1,4 @@
+import Header from "../../components/Header";
 import { AuthContext } from "../../contexts/auth";
 import { useContext } from "react";
 
@@ -10,6 +11,7 @@ function Dashboard() {
 
     return(
         <div>
+            <Header />
             Dashboard
             <button onClick={() => handleLogout}>Sair da conta</button>
         </div>
