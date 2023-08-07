@@ -23,7 +23,6 @@ function AuthProvider({ children }) {
         async function loadUser(){
             /**Busca o usuário que estava logado no sistema(Permanencia de login) */
             const storageUser = localStorage.getItem("@ticketsPRO");
-
             /**Se encontrar um usuário logado, passa para a aplicação */
             if(storageUser) {
                 setUser(JSON.parse(storageUser));

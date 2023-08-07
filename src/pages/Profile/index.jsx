@@ -7,6 +7,15 @@ import avatar from '../../assets/avatar.png';
 import { AuthContext } from "../../contexts/auth";
 import './profile.css';
 
+import { db, storage } from '../../services/firebaseConnection';
+import { doc, updateDoc } from 'firebase/firestore';
+import { ref, //Referencia da imagem
+         uploadBytes, //Método para enviar a imagem
+         getDownloadURL //URL para acesso da nova imagem
+        } from "firebase/storage";
+
+import { toast } from "react-toastify";
+
 export default function Profile() {
 
     const{ user, storageUser, setUser, logout } = useContext(AuthContext);
@@ -33,6 +42,77 @@ export default function Profile() {
         }
     }
 
+    async function handleUpload() {
+        const currentUid = user.uid;
+
+        //Referência e caminho onde a foto deverá ser salva
+        const uploadRef = ref(storage, `images/${currentUid}/${imageAvatar.name}`);
+
+        //Fazendo o envio da imagem para o firebase
+        const uploadTask = uploadBytes(uploadRef, imageAvatar)
+        .then((snapshot) => {
+            //Recebe a url da foto salva na resposta da requisição
+            getDownloadURL(snapshot.ref).then(async (downloadUrl) => { 
+                let urlFoto = downloadUrl;
+
+                const docRef = doc(db, 'users', user.uid);
+                await updateDoc(docRef, {
+                    avatarUrl: urlFoto,
+                    nome: nome,
+                }).then(() => {
+                    //Monta o objeto com os dados atualizados
+                    let data = {
+                        ...user,
+                        nome: nome,
+                        avatarUrl: urlFoto,
+                    }
+                    //Atualiza na aplicação
+                    setUser(data);
+                    //Atualiza no Storage
+                    storageUser(data);
+
+                    toast.success('atualizado com sucesso');
+                }).catch(() => {
+                    toast.failed('Não foi possível atualizar');
+                    console.log(error);
+                });
+            })
+        }).catch((error) => {
+            toast.failed('Não foi possível atualizar');
+            console.log(error);
+        })
+    }
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        //Verificando se precisará atualizar a foto de perfil ou não
+        if(imageAvatar === null && nome !== '') {
+            //Criando referência do usuário no banco
+            const docRef = doc(db, 'users', user.uid);
+            //Atualizando o usuário no banco
+            await updateDoc(docRef, {
+                nome: nome,
+            }).then(() => {
+                //Monta o objeto com os dados atualizados
+                let data = {
+                    ...user,
+                    nome: nome
+                }
+                //Atualiza na aplicação
+                setUser(data);
+                //Atualiza no Storage
+                storageUser(data);
+
+                toast.success('atualizado com sucesso');
+            }).catch((error) => {
+                toast.failed('Não foi possível atualizar');
+                console.log(error);
+            })
+        } else if(nome !== '' && imageAvatar !== null) {
+            handleUpload();
+        }
+    }
+
     return(
         <div>
             <Header />
@@ -42,7 +122,7 @@ export default function Profile() {
                 </Title>
 
                 <div className="container">
-                    <form className="form-profile">
+                    <form className="form-profile" onSubmit={handleSubmit}>
                         <label className="label-avatar">
                             <span>
                                 <FiUpload color="#fff" size={25} />
@@ -59,12 +139,12 @@ export default function Profile() {
                         </label>
 
                         <label>Nome</label>
-                        <input type="text" value={nome} placeholder="Seu nome" onChange={() => setNome(e.target.value)}/>
+                        <input type="text" value={nome} placeholder="Seu nome" onChange={(e) => setNome(e.target.value)}/>
 
                         <label>Email</label>
-                        <input type="email" value={email} placeholder="email@email.com" />
+                        <input type="email" value={email} placeholder="email@email.com" disabled/>
 
-                        <input type="submit" placeholder="Salvar" />
+                        <button type="submit"> Salvar </button>
                     </form>
                 </div>            
                 <div className="container">
