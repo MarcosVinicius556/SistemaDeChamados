@@ -120,7 +120,7 @@ function AuthProvider({ children }) {
 
     return(
         <AuthContext.Provider value={{
-            signed: !!user, //!!Converte a variável para boolean,
+            signed: !!user, //"!!" Converte a variável para boolean,
             user,
             signIn,
             signUp,
