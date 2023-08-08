@@ -73,7 +73,7 @@ export default function Profile() {
 
                     toast.success('atualizado com sucesso');
                 }).catch(() => {
-                    toast.failed('Não foi possível atualizar');
+                    toast.error('Não foi possível atualizar');
                     console.log(error);
                 });
             })
@@ -105,7 +105,7 @@ export default function Profile() {
 
                 toast.success('atualizado com sucesso');
             }).catch((error) => {
-                toast.failed('Não foi possível atualizar');
+                toast.error('Não foi possível atualizar');
                 console.log(error);
             })
         } else if(nome !== '' && imageAvatar !== null) {

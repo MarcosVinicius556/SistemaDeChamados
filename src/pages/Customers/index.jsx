@@ -3,6 +3,11 @@ import Header from '../../components/Header';
 import Title from '../../components/Title';
 import { FiUser } from 'react-icons/fi';
 
+import { db } from '../../services/firebaseConnection';
+import { addDoc, collection } from 'firebase/firestore';
+
+import { toast } from 'react-toastify';
+
 import './customers.css';
 
 export default function Customers() {
@@ -11,8 +16,28 @@ export default function Customers() {
     const[ cnpj, setCnpj ] = useState('');
     const[ endereco, setEndereco ] = useState('');
 
-    function handleRegister(e) {
+    async function handleRegister(e) {
         e.preventDefault();
+        if(nome !== '' && cnpj !== '' && endereco !== '') {
+            await addDoc(collection(db, 'customers'), {
+                nomeFantasia: nome,
+                cnpj: cnpj,
+                endereco: endereco,
+            }).then(() => {
+                toast.success(`Cliente ${ nome } cadastrado com sucesso!`);
+                setNome('');
+                setCnpj('');
+                setEndereco('');
+            }).catch((error) => {
+                toast.error('Não foi possível cadastrar este cliente');
+                console.log(error);
+                setNome('');
+                setCnpj('');
+                setEndereco('');
+            });
+        } else {
+            toast.error('Preencha todos os campos!')
+        }
     }
 
     return(
@@ -28,18 +53,21 @@ export default function Customers() {
                     <input 
                      type="text" 
                      placeholder='Nome da Empresa'
+                     value={nome}
                      onChange={(e) => setNome(e.target.value)}
                      />
                      <label>CNPJ</label>
                     <input 
-                     type="number" 
+                     type="text" 
                      placeholder='CNPJ da empresa'
+                     value={cnpj}
                      onChange={(e) => setCnpj(e.target.value)}
                      />
                      <label>Endereço</label>
                     <input 
                      type="text" 
                      placeholder='Endereço da Empresa'
+                     value={endereco}
                      onChange={(e) => setEndereco(e.target.value)}
                      />
 
