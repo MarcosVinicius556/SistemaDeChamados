@@ -1,0 +1,23 @@
+form textarea {
+    resize: none;
+    height: 105px;
+}
+
+/* Aplica somente nos inputs do tipo radio */
+form input[type="radio"] {
+    margin: 15px;
+}
+
+/* Aplica em todos os elementos do tipo rádio que não sejam o primeiro */
+form input[type="radio"]:not(:first-child) {
+    margin-left: 15px;
+}
+
+.status span{
+    padding-left: .5em;
+    font-size: 1.3em;
+}
+
+.status {
+    margin-bottom: 1em;
+}
