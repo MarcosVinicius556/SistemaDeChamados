@@ -46,9 +46,13 @@ function Dashboard() {
                         <tbody>
                             <tr>
                                 <td data-label="Cliente">Mercado Esquina</td>
-                                <td data-label="Cliente">Suporte</td>
-                                <td data-label="Cliente">Em Aberto</td>
-                                <td data-label="Cliente">12/05/2023</td>
+                                <td data-label="Assunto">Suporte</td>
+                                <td data-label="Status">
+                                    <span className="badge" style={{ background: '#999' }}>
+                                        Em Aberto
+                                    </span>
+                                </td>
+                                <td data-label="Cadastrado">12/05/2023</td>
                                 <td data-label="#">
                                     <button className="action" style={{ background: '#3583f6' }}>
                                         <FiSearch color="#fff" size={17} />
