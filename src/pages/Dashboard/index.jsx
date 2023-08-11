@@ -8,7 +8,10 @@ import { Link } from "react-router-dom";
 import { db } from "../../services/firebaseConnection";
 import { collection, getDocs, orderBy, limit, startAfter, query } from "firebase/firestore";
 
+import { format } from "date-fns";
+
 import './dashboard.css';
+
 
 const listRef = collection(db, "chamados");
 
@@ -28,6 +31,8 @@ function Dashboard() {
             );
 
             const querySnapshot = await getDocs(q);
+            //zera para evitar duplicidade de resultados(bug que normalmente ocorre no modo de desenvolvimento "<StrictMode>")
+            setChamados([]); 
             await updateState(querySnapshot);
             setLoading(false);
         }
@@ -51,6 +56,7 @@ function Dashboard() {
                     cliente: doc.data().cliente,
                     clienteId: doc.data().clienteId,
                     created: doc.data().created,
+                    createdFormat: format(doc.data().created.toData(), 'dd/MM/yyyy'),
                     status: doc.data().status,
                     complemento: doc.data().complemento,
                 });
@@ -61,6 +67,22 @@ function Dashboard() {
         } else {
             setIsEmpty(true);
         }
+    }
+
+    if(loading){
+        return(
+            <div>
+                <Header />
+                <div className="content">
+                <Title name="Tickets">
+                    <FiMessageSquare size={25} />
+                </Title>
+                </div>
+                <div className="container dashboard">
+                    <span>Buscando chamados...</span>
+                </div>
+            </div>
+        )
     }
 
     return(
@@ -103,24 +125,28 @@ function Dashboard() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td data-label="Cliente">Mercado Esquina</td>
-                                                <td data-label="Assunto">Suporte</td>
-                                                <td data-label="Status">
-                                                    <span className="badge" style={{ background: '#999' }}>
-                                                        Em Aberto
-                                                    </span>
-                                                </td>
-                                                <td data-label="Cadastrado">12/05/2023</td>
-                                                <td data-label="#">
-                                                    <button className="action" style={{ background: '#3583f6' }}>
-                                                        <FiSearch color="#fff" size={17} />
-                                                    </button>
-                                                    <button className="action" style={{ background: '#f6a935' }}>
-                                                        <FiEdit2 color="#fff" size={17} />
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            {
+                                                chamados.map((item, index) => {
+                                                    <tr key={index}>
+                                                        <td data-label="Cliente">{item.cliente}</td>
+                                                        <td data-label="Assunto">{item.assunto}</td>
+                                                        <td data-label="Status">
+                                                            <span className="badge" style={{ background: '#999' }}>
+                                                                {item.status}
+                                                            </span>
+                                                        </td>
+                                                        <td data-label="Cadastrado">{item.createdFormat}</td>
+                                                        <td data-label="#">
+                                                            <button className="action" style={{ background: '#3583f6' }}>
+                                                                <FiSearch color="#fff" size={17} />
+                                                            </button>
+                                                            <button className="action" style={{ background: '#f6a935' }}>
+                                                                <FiEdit2 color="#fff" size={17} />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                })
+                                            }
                                         </tbody>
                                     </table>
                                 </>
