@@ -18,19 +18,27 @@ const listRef = collection(db, "chamados")
 export default function Dashboard(){
   const { logout } = useContext(AuthContext);
 
-  const [chamados, setChamados] = useState([])
+  const [chamados, setChamados] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isEmpty, setIsEmpty] = useState(false)
+  
+  const [isEmpty, setIsEmpty] = useState(false);
+  const[ lastDocs, setLastDocs ] = useState();
+  const[ loadingMore, setLoadingMore ] = useState();
 
 
   useEffect(() => {
     async function loadChamados(){
+      /**
+       * Cria uma query para o firebase, onde define
+       * a referencia de onde irá acessar, como será
+       * ordenado, e um limit de retorno da query
+       */
       const q = query(listRef, orderBy('created', 'desc'), limit(5));
 
       const querySnapshot = await getDocs(q)
-      setChamados([]);
+      setChamados([]); //Evita registros duplicados(Geralmente ocorre apenas em desenvolvimento)
 
-      await updateState(querySnapshot)
+      await updateState(querySnapshot) //Atualizando interface
 
       setLoading(false);
 
@@ -62,15 +70,30 @@ export default function Dashboard(){
         })
       })
 
+      //Pegando o último registro renderizado
+      const lastDoc = querySnapshot.docs[ querySnapshot.docs.length - 1 ];
+      
       setChamados(chamados => [...chamados, ...lista])
-
+      setLastDocs(lastDoc);
 
     }else{
       setIsEmpty(true);
     }
     
+    setLoadingMore(false);
 
+  }
 
+  async function handleMore() {
+    setLoadingMore(true);
+
+    const q = query(listRef, //Referencia no banco
+                    orderBy('created', 'desc'), //Modo de ordencao
+                    startAfter(lastDocs), //Busca a partir do último documento renderizado
+                    limit(5)); //Traz apenas 5 por vez
+
+    const querySnapshot = await getDocs(q);
+    await updateState(querySnapshot);
   }
 
 
@@ -134,7 +157,7 @@ export default function Dashboard(){
                         <td data-label="Cliente">{item.cliente.nomeFantasia}</td>
                         <td data-label="Assunto">{item.assunto}</td>
                         <td data-label="Status">
-                          <span className="badge" style={{ backgroundColor: '#999' }}>
+                          <span className="badge" style={{ backgroundColor: item.status === 'Aberto' ? '#5cB85c' : '#999' }}>
                             {item.status}
                           </span>
                         </td>
@@ -151,7 +174,11 @@ export default function Dashboard(){
                     )
                   })}
                 </tbody>
-              </table>              
+              </table>        
+
+
+              {loadingMore && <h3>Buscando mais chamados...</h3>}
+              {!loadingMore && !isEmpty && <button className='btn-more' onClick={handleMore}>Buscar mais</button>}
             </>
           )}
         </>
