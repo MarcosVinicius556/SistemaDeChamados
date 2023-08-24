@@ -4,9 +4,9 @@ import Title from '../../components/Title';
 import { FiPlusCircle } from 'react-icons/fi';
 import { AuthContext } from '../../contexts/auth';
 import { db } from '../../services/firebaseConnection';
-import { collection, getDocs, getDoc, doc, addDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, addDoc, updateDoc } from 'firebase/firestore';
 import './new.css';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 //Gera a referência da coleção a ser acessada
@@ -25,6 +25,8 @@ export default function New() {
     const[ assunto, setAssunto ] = useState('Suporte');
     const[ status, setStatus ] = useState('Aberto');
     const[ idCustomer, setIdCustomer ] = useState(false); //Inicia com falso, pois não inicia querendo editar
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function loadCustomers(){
@@ -72,7 +74,7 @@ export default function New() {
                 /** "findIndex" Verifica se existe algum cliente na
                  *  lista que possua o ID igual ao informado 
                  **/
-                let index = lista.findIndex(item => item.id === snapshot.data().clientId);
+                let index = lista.findIndex(item => item.id === snapshot.data().clienteId);
                 setCustomerSelected(index);
                 setIdCustomer(true);
               })
@@ -102,6 +104,25 @@ export default function New() {
          * Se for editar um chamado irá parar após a execução deste IF
          */
         if(idCustomer){
+            /**
+             * Update 
+             */
+            const docRef = doc(db, 'chamados', id);
+            await updateDoc(docRef, {
+                cliente: customers[customerSelected],
+                clienteId: customers[customerSelected].id,
+                assunto: assunto,
+                complemento: complemento,
+                status: status,
+                userId: user.uid 
+            }).then(() =>{
+                toast.success('Atualizado com sucesso!');
+                setCustomerSelected(0);
+                setComplemento('');
+                navigate('/dashboard');
+            }).catch((error) => {
+                toast.error('Erro ao atualizar o chamado. Erro => ' + error);
+            });
             return;
         }
 
@@ -127,7 +148,7 @@ export default function New() {
         <div>
             <Header />
             <div className="content">
-                <Title name="Novo Chamado">
+                <Title name={ id ? "Editando Chamado": "Novo Chamado" }>
                     <FiPlusCircle size={25} />
                 </Title>
 
