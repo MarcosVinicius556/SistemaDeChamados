@@ -6,6 +6,7 @@ import { AuthContext } from '../../contexts/auth';
 import { db } from '../../services/firebaseConnection';
 import { collection, getDocs, getDoc, doc, addDoc } from 'firebase/firestore';
 import './new.css';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 //Gera a referência da coleção a ser acessada
@@ -14,6 +15,8 @@ const listRef = collection(db, 'customers');
 export default function New() {
     const { user } = useContext(AuthContext);
 
+    const { id } = useParams(); //Recebendo valores da URL
+
     const[ customers, setCustomers ] = useState([]);
     const[loadCustomer, setLoadCustomer] = useState(true);
     const[ customerSelected, setCustomerSelected ] = useState(0);
@@ -21,6 +24,7 @@ export default function New() {
     const[ complemento, setComplemento ] = useState('');
     const[ assunto, setAssunto ] = useState('Suporte');
     const[ status, setStatus ] = useState('Aberto');
+    const[ idCustomer, setIdCustomer ] = useState(false); //Inicia com falso, pois não inicia querendo editar
 
     useEffect(() => {
         async function loadCustomers(){
@@ -43,6 +47,10 @@ export default function New() {
 
                 setCustomers(lista);
                 setLoadCustomer(false);
+
+                if(id){ //Se tiver um id
+                    loadId(lista); //Busca os dados
+                }
             }).catch((error) => { //Caso falhe, cria um cliente fictício 
                 console.log(error);
                 toast.error("Erro ao buscar clientes, " + error);
@@ -51,7 +59,29 @@ export default function New() {
             })
         }
         loadCustomers();
-    }, []);
+    }, [id]); //Se tiver um id, ele tentará buscar os dados do mesmo
+
+    async function loadId(lista) {
+        const docRef = doc(db, 'chamados', id); //Busca apenas o chamado com o ID informado
+        await getDoc(docRef)
+              .then((snapshot) => {
+                setAssunto(snapshot.data().assunto);
+                setStatus(snapshot.data().status);
+                setComplemento(snapshot.data().complemento);
+
+                /** "findIndex" Verifica se existe algum cliente na
+                 *  lista que possua o ID igual ao informado 
+                 **/
+                let index = lista.findIndex(item => item.id === snapshot.data().clientId);
+                setCustomerSelected(index);
+                setIdCustomer(true);
+              })
+              .catch((error) => {
+                console.log(error);
+                toast.error("Ocorreu um erro ao buscar o cliente");
+                setIdCustomer(false);
+              });
+    }
 
     function handleOptionChange(e) {
         setStatus(e.target.value);
@@ -67,6 +97,14 @@ export default function New() {
 
     async function handleRegister(e) {
         e.preventDefault();
+
+        /**
+         * Se for editar um chamado irá parar após a execução deste IF
+         */
+        if(idCustomer){
+            return;
+        }
+
         await addDoc(collection(db, 'chamados'), {
             created: new Date(),
             cliente: customers[customerSelected],
