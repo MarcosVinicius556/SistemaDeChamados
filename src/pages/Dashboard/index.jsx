@@ -6,7 +6,7 @@ import Title from '../../components/Title'
 import { FiPlus, FiMessageSquare, FiSearch, FiEdit2 } from 'react-icons/fi'
 
 import { Link } from 'react-router-dom'
-import { collection, getDocs, orderBy, limit, startAfter, query} from 'firebase/firestore'
+import { collection, getDocs, orderBy, where, limit, startAfter, query} from 'firebase/firestore'
 import { db } from '../../services/firebaseConnection'
 
 import { format } from 'date-fns';
@@ -17,7 +17,7 @@ import './dashboard.css'
 const listRef = collection(db, "chamados")
 
 export default function Dashboard(){
-  const { logout } = useContext(AuthContext);
+  const { logout, user } = useContext(AuthContext);
 
   const [chamados, setChamados] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +37,7 @@ export default function Dashboard(){
        * a referencia de onde irá acessar, como será
        * ordenado, e um limit de retorno da query
        */
-      const q = query(listRef, orderBy('created', 'desc'), limit(5));
+      const q = query(listRef, orderBy('created', 'desc'), where('userId', '==', user.uid), limit(5));
 
       const querySnapshot = await getDocs(q)
       setChamados([]); //Evita registros duplicados(Geralmente ocorre apenas em desenvolvimento)
@@ -101,8 +101,9 @@ export default function Dashboard(){
   }
 
   function toggleModal(item) {
-    setShowPostModal(!showPostModal);
+    console.log(item)
     setDetail(item);
+    setShowPostModal(!showPostModal);
   }
 
 
@@ -172,7 +173,7 @@ export default function Dashboard(){
                         </td>
                         <td data-label="Cadastrado">{item.createdFormat}</td>
                         <td data-label="#">
-                          <button className="action" style={{ backgroundColor: '#3583f6' }}>
+                          <button className="action" onClick={(e) => toggleModal(item)} style={{ backgroundColor: '#3583f6' }}>
                             <FiSearch color='#FFF' size={17}/>
                           </button>
                           <Link to={`/new/${item.id}`} onClick={() => toggleModal(item)} className="action" style={{ backgroundColor: '#f6a935' }}>

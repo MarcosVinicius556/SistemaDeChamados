@@ -14,7 +14,7 @@ export default function Modal({ conteudo, close }) {
                 <h2>Detalhes do Chamado</h2>
 
                 <div className="row">
-                    <span>Cliente: <i>{conteudo.cliente}</i></span>
+                    <span>Cliente: <i>{conteudo.cliente.nomeFantasia}</i></span>
                 </div>
 
                 <div className="row">
