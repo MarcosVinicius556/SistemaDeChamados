@@ -138,6 +138,7 @@ export default function New() {
             toast.success('Chamado registrado!');
             setComplemento('');
             setCustomerSelected(0);
+            navigate('/dashboard');
         }).catch((error) => {
             console.log(error);
             toast.error('Ocorreu um erro ao incluir o chamado!');
@@ -182,32 +183,38 @@ export default function New() {
 
                         <label>Status</label>
                         <div className="status">
-                            <input 
-                                type="radio"
-                                name="radio" 
-                                value="Aberto" 
-                                onChange={handleOptionChange}
-                                checked={ status === "Aberto" }
-                            />
-                            <span>Em aberto</span>
+                            <div className="status-row">
+                                <input 
+                                    type="radio"
+                                    name="radio" 
+                                    value="Aberto" 
+                                    onChange={handleOptionChange}
+                                    checked={ status === "Aberto" }
+                                />
+                                <span>Em aberto</span>
+                            </div>
 
-                            <input 
-                                type="radio" 
-                                name="radio" 
-                                value="Progresso" 
-                                onChange={handleOptionChange}
-                                checked={ status === "Progresso" }
-                            />
-                            <span>Progresso</span>
+                            <div className="status-row">
+                                <input 
+                                    type="radio" 
+                                    name="radio" 
+                                    value="Progresso" 
+                                    onChange={handleOptionChange}
+                                    checked={ status === "Progresso" }
+                                />
+                                <span>Progresso</span>
+                            </div>
 
-                            <input 
-                                type="radio" 
-                                name="radio" 
-                                value="Atendido" 
-                                onChange={handleOptionChange}
-                                checked={ status === "Atendido" }
-                            />
+                            <div className="status-row">
+                                <input 
+                                    type="radio" 
+                                    name="radio" 
+                                    value="Atendido" 
+                                    onChange={handleOptionChange}
+                                    checked={ status === "Atendido" }
+                                />
                             <span>Atendido</span>
+                            </div>
                         </div>
 
                         <label> Complemento </label>

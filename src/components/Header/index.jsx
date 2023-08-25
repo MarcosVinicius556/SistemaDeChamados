@@ -20,16 +20,20 @@ function Header() {
 
            <Link to="/dashboard">
                 <FiHome color='#fff' size={24} />
-                Chamados
+                <span>Chamados</span>
            </Link>
            <Link to="/customers">
                 <FiUser color='#fff' size={24} />
-                Clientes
+                <span>Clientes</span>
            </Link>
            <Link to="/profile">
                 <FiSettings color='#fff' size={24} />
-                Perfil
+                <span>Perfil</span>
            </Link>
+           <span>
+               <i>Desenvolvido por <br />
+               Marcos Vinicius Angeli Costa</i>
+           </span>
         </div>
     );
 }
