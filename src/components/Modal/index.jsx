@@ -1,35 +1,42 @@
 import './modal.css';
 import { FiX } from 'react-icons/fi';
 
-export default function Modal() {
+export default function Modal({ conteudo, close }) {
     return(
         <div className='modal'>
             <div className='container'>
-                <bitton className="close">
+                <button className="close" onClick={ close }>
                     <FiX size={25} color='#fff' />
                     Voltar
-                </bitton>
+                </button>
 
             <main>
                 <h2>Detalhes do Chamado</h2>
 
                 <div className="row">
-                    <span>Cliente: <i>Mercado</i></span>
+                    <span>Cliente: <i>{conteudo.cliente}</i></span>
                 </div>
 
                 <div className="row">
-                    <span>Assunto: <i>Suporte</i></span>
-                    <span>Cadastrado em: <i>24/08/2023</i></span>
+                    <span>Assunto: <i>{conteudo.assunto}</i></span>
+                    <span>Cadastrado em: 
+                        <i className="status-badge" style={{ color: "fff", backgroundColor: conteudo.status === "Aberto" ? "#5cb85c": "#999" }}>
+                            {conteudo.createdFormat}
+                        </i>
+                    </span>
                 </div>
                 <div className="row">
-                    <span>Status: <i>Aberto</i></span>
+                    <span>Status: <i>{conteudo.status}</i></span>
                 </div>
-                <>
-                    <h3>Complemento</h3>
-                    <p>
-                        Aqui vai todo o complemento do parágrafo
-                    </p>
-                </>
+                {conteudo.complemento && (
+                    <>
+                        <h3>Complemento</h3>
+                        <p>
+                            {conteudo.complemento}
+                        </p>
+                    </>
+                    )
+                }
             </main>
 
             </div>

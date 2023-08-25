@@ -26,6 +26,9 @@ export default function Dashboard(){
   const[ lastDocs, setLastDocs ] = useState();
   const[ loadingMore, setLoadingMore ] = useState();
 
+  const[ showPostModal, setShowPostModal ] = useState(false);
+  const[ detail, setDetail ] = useState();
+
 
   useEffect(() => {
     async function loadChamados(){
@@ -95,6 +98,11 @@ export default function Dashboard(){
 
     const querySnapshot = await getDocs(q);
     await updateState(querySnapshot);
+  }
+
+  function toggleModal(item) {
+    setShowPostModal(!showPostModal);
+    setDetail(item);
   }
 
 
@@ -167,7 +175,7 @@ export default function Dashboard(){
                           <button className="action" style={{ backgroundColor: '#3583f6' }}>
                             <FiSearch color='#FFF' size={17}/>
                           </button>
-                          <Link to={`/new/${item.id}`} className="action" style={{ backgroundColor: '#f6a935' }}>
+                          <Link to={`/new/${item.id}`} onClick={() => toggleModal(item)} className="action" style={{ backgroundColor: '#f6a935' }}>
                             <FiEdit2 color='#FFF' size={17}/>
                           </Link>
                         </td>
@@ -186,7 +194,12 @@ export default function Dashboard(){
 
       </div>
     
-    <Modal />
+    {showPostModal && ( 
+      <Modal 
+        conteudo={detail}
+        close={() => setShowPostModal(!showPostModal)} //Passa uma função aônima, que ao ser chamada, altera o estado do modal
+      /> 
+    )}
 
     </div>
   )

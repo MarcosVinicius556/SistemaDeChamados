@@ -63,3 +63,8 @@
     white-space: pre-wrap; /*Quebra a linha*/
     line-height: 150%; /*Aumenta o tamanho das linhas*/
 }
+
+.status-badge {
+    margin-left: 1em;
+    border-radius: 2px;
+}
